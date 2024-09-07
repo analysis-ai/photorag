@@ -1,15 +1,17 @@
-import { sql, SQL } from 'drizzle-orm';
 import {
   AnyPgColumn,
   index,
+  integer,
   pgTable,
   serial,
   text,
   timestamp,
   uniqueIndex,
   uuid,
-  varchar
+  varchar,
+  vector
 } from 'drizzle-orm/pg-core';
+import { SQL, sql } from 'drizzle-orm';
 
 // custom lower function
 export function lower(email: AnyPgColumn): SQL {
@@ -43,6 +45,66 @@ export const emailRegister = pgTable(
       idxToken: index('idx_email_registers_token').using('btree', table.token)
     };
   }
+);
+
+export const images = pgTable(
+  'images',
+  {
+    id: serial('id').primaryKey(),
+    filePath: varchar('file_path', { length: 255 }),
+    description: text('description'),
+    tags: varchar('tags', { length: 255 }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
+    created: timestamp('created', { precision: 6, withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated: timestamp('updated', { precision: 6, withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date())
+  },
+  (table) => {
+    return {
+      idxFilePathUniq: uniqueIndex('idx_images_file_path_uniq').on(
+        table.filePath
+      ),
+      idxUserId: index('idx_images_user_id').on(table.userId),
+      idxDescriptionGin: index('idx_images_description_gin').using(
+        'gin',
+        sql`to_tsvector('english', ${table.description})`
+      ),
+      idxTagsGin: index('idx_images_tags_gin').using(
+        'gin',
+        sql`to_tsvector('english', ${table.tags})`
+      )
+    };
+  }
+);
+
+export const imageVectors = pgTable(
+  'image_vectors',
+  {
+    id: serial('id').primaryKey(),
+    imageId: integer('image_id').references(() => images.id),
+    descriptionVector: vector('description_vector', { dimensions: 1536 }),
+    imageVector: vector('image_vector', { dimensions: 512 })
+  },
+  (table) => ({
+    cosineDescription: index('cosine_description_index').using(
+      'hnsw',
+      table.descriptionVector.op('vector_cosine_ops')
+    ),
+    cosineImage: index('cosine_image_index').using(
+      'hnsw',
+      table.imageVector.op('vector_cosine_ops')
+    ),
+    l2Image: index('l2_image_index').using(
+      'hnsw',
+      table.imageVector.op('vector_l2_ops')
+    )
+  })
 );
 
 export const users = pgTable(
