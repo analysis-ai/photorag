@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-import { headers } from 'next/headers';
 import { similaritySearch } from '@/lib/similarity-search';
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   const headersList = headers();

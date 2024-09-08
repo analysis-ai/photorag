@@ -1,3 +1,4 @@
+import { SQL, sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
   index,
@@ -11,7 +12,6 @@ import {
   varchar,
   vector
 } from 'drizzle-orm/pg-core';
-import { SQL, sql } from 'drizzle-orm';
 
 // custom lower function
 export function lower(email: AnyPgColumn): SQL {
@@ -51,9 +51,10 @@ export const images = pgTable(
   'images',
   {
     id: serial('id').primaryKey(),
-    filePath: varchar('file_path', { length: 255 }),
+    filePath: text('file_path').unique().notNull(),
+    filename: text('filename'),
     description: text('description'),
-    tags: varchar('tags', { length: 255 }),
+    tags: text('tags'),
     userId: integer('user_id')
       .notNull()
       .references(() => users.id),
@@ -67,9 +68,6 @@ export const images = pgTable(
   },
   (table) => {
     return {
-      idxFilePathUniq: uniqueIndex('idx_images_file_path_uniq').on(
-        table.filePath
-      ),
       idxUserId: index('idx_images_user_id').on(table.userId),
       idxDescriptionGin: index('idx_images_description_gin').using(
         'gin',

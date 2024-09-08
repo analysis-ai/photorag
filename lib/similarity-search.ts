@@ -1,8 +1,7 @@
-import { ImageSearchResult, ImageVectorQueryResult } from '@/types/search';
-import { imageVectors, images } from '@/db/schema';
-
 import { db } from '@/db';
+import { images, imageVectors } from '@/db/schema';
 import { generateEmbedding } from '@/lib/image-processing';
+import { ImageSearchResult, ImageVectorQueryResult } from '@/types/search';
 import { sql } from 'drizzle-orm';
 
 export async function similaritySearch(query: string, limit: number = 5) {

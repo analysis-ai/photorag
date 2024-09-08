@@ -1,5 +1,4 @@
 import { azureOpenAI, azureOpenAIEmbeddings } from '@/lib/azure-open-ai';
-
 import axios from 'axios';
 
 const azureVisionApiUrl = `${process.env.AZURE_AI_ENDPOINT}/vision/v3.2/analyze?visualFeatures=Description,Tags`;

@@ -1,6 +1,6 @@
-import { emailRegister, imageVectors, images, users } from './tables';
-
 import { relations } from 'drizzle-orm';
+
+import { emailRegister, images, imageVectors, users } from './tables';
 
 export const emailRegisterRelations = relations(emailRegister, ({ one }) => ({
   user: one(users, {

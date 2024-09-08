@@ -1,6 +1,6 @@
 {
-  "id": "8d9f5180-c83a-4b5b-a294-e6f78fb92086",
-  "prevId": "6f90eacb-268e-4ee6-a6e7-f81e2be1c438",
+  "id": "d44dc310-e1f9-4c03-95c2-50a3ef16fbbd",
+  "prevId": "8d9f5180-c83a-4b5b-a294-e6f78fb92086",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -201,7 +201,13 @@
         },
         "file_path": {
           "name": "file_path",
-          "type": "varchar(255)",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filename": {
+          "name": "filename",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -213,7 +219,7 @@
         },
         "tags": {
           "name": "tags",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -239,21 +245,6 @@
         }
       },
       "indexes": {
-        "idx_images_file_path_uniq": {
-          "name": "idx_images_file_path_uniq",
-          "columns": [
-            {
-              "expression": "file_path",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "idx_images_user_id": {
           "name": "idx_images_user_id",
           "columns": [
@@ -312,7 +303,13 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "images_file_path_unique": {
+          "name": "images_file_path_unique",
+          "nullsNotDistinct": false,
+          "columns": ["file_path"]
+        }
+      }
     },
     "public.users": {
       "name": "users",
