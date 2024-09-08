@@ -87,7 +87,9 @@ export const imageVectors = pgTable(
   'image_vectors',
   {
     id: serial('id').primaryKey(),
-    imageId: integer('image_id').references(() => images.id),
+    imageId: integer('image_id')
+      .references(() => images.id)
+      .unique(),
     descriptionVector: vector('description_vector', { dimensions: 1536 }),
     imageVector: vector('image_vector', { dimensions: 512 })
   },
