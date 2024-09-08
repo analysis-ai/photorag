@@ -1,3 +1,4 @@
+import { SQL, sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
   index,
@@ -11,7 +12,6 @@ import {
   varchar,
   vector
 } from 'drizzle-orm/pg-core';
-import { SQL, sql } from 'drizzle-orm';
 
 // custom lower function
 export function lower(email: AnyPgColumn): SQL {

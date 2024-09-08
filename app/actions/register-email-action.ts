@@ -1,10 +1,9 @@
 'use server';
 
-import { formatZodErrors, getURL } from '@/lib/utils';
-
-import { EmailClient } from '@azure/communication-email';
-import { EmailRegister } from '@/models';
 import { RegisterEmailSchema } from '@/app/actions/schema';
+import { formatZodErrors, getURL } from '@/lib/utils';
+import { EmailRegister } from '@/models';
+import { EmailClient } from '@azure/communication-email';
 
 const client = new EmailClient(process.env.AZURE_EMAIL_CONN_STRING || '');
 

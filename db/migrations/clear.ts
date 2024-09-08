@@ -1,5 +1,4 @@
 import { mDb, migrationClient } from '@/db';
-
 import { sql } from 'drizzle-orm';
 
 require('dotenv').config({ path: ['.env.local', '.env'] });
@@ -12,9 +11,7 @@ async function main() {
   await mDb.execute(sql.raw(`DROP SCHEMA public CASCADE;`));
   await mDb.execute(sql.raw(`CREATE SCHEMA public;`));
 
-  await mDb.execute(
-    sql.raw(`GRANT ALL ON SCHEMA public TO ${dbUser};`)
-  );
+  await mDb.execute(sql.raw(`GRANT ALL ON SCHEMA public TO ${dbUser};`));
 
   await mDb.execute(sql.raw(`GRANT ALL ON SCHEMA public TO public;`));
   await mDb.execute(

@@ -1,9 +1,9 @@
-import { Camera } from 'lucide-react';
-import Image from 'next/image';
+import logo from '@/assets/logo.png';
 import { ModeToggle } from '@/components/mode-toggle';
 import MultiImageUpload from '@/components/multi-image-upload';
 import { RegisterEmailForm } from '@/components/register-email-form';
-import logo from '@/assets/logo.png';
+import { Camera } from 'lucide-react';
+import Image from 'next/image';
 
 export default async function LandingPage() {
   return (

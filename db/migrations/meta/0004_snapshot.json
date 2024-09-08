@@ -174,12 +174,8 @@
           "name": "image_vectors_image_id_images_id_fk",
           "tableFrom": "image_vectors",
           "tableTo": "images",
-          "columnsFrom": [
-            "image_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["image_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -189,9 +185,7 @@
         "image_vectors_image_id_unique": {
           "name": "image_vectors_image_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "image_id"
-          ]
+          "columns": ["image_id"]
         }
       }
     },
@@ -311,12 +305,8 @@
           "name": "images_user_id_users_id_fk",
           "tableFrom": "images",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

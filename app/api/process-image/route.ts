@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { generateEmbedding, processImage } from '@/lib/image-processing';
-import { imageVectors, images } from '@/db/schema';
-
 import { db } from '@/db';
-import { headers } from 'next/headers';
+import { images, imageVectors } from '@/db/schema';
+import { generateEmbedding, processImage } from '@/lib/image-processing';
 import { sql } from 'drizzle-orm';
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   const headersList = headers();

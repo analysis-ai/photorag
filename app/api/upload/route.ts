@@ -1,12 +1,11 @@
 import {
   BlobSASPermissions,
   BlobServiceClient,
-  StorageSharedKeyCredential,
-  generateBlobSASQueryParameters
+  generateBlobSASQueryParameters,
+  StorageSharedKeyCredential
 } from '@azure/storage-blob';
-import { NextRequest, NextResponse } from 'next/server';
-
 import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
 const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME || '';
