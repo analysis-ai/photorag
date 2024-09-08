@@ -12,6 +12,10 @@ permissions:
 
 env:
   AZURE_CONTAINER_REGISTRY_NAME: photoragacr
+  AZURE_OPENAI_API_DEPLOYMENT_NAME: gpt-4o-2024-08-06
+  AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME: text-embedding-ada-002
+  AZURE_OPENAI_API_INSTANCE_NAME: photorag-openai
+  AZURE_OPENAI_API_VERSION: 2024-06-01
   AZURE_RESOURCEGROUP_NAME: photorag
   AZURE_WEB_APP_NAME: photoragweb
   NEXT_PUBLIC_SITE_URL: https://rag.photomuse.ai
@@ -37,8 +41,17 @@ jobs:
           template: ./deploy/main.bicep
           parameters: >
             acrName=${{ env.AZURE_CONTAINER_REGISTRY_NAME }}
+            azureAiEndpoint=${{ secrets.AZURE_AI_ENDPOINT }}
+            azureOpenAiApiDeploymentName=${{ env.AZURE_OPENAI_API_DEPLOYMENT_NAME }}
+            azureOpenAiApiEmbeddingDeploymentName=${{ env.AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME }}
+            azureOpenAiApiEndpoint=${{ secrets.AZURE_OPENAI_API_ENDPOINT }}
+            azureOpenAiApiInstanceName=${{ env.AZURE_OPENAI_API_INSTANCE_NAME }}
+            azureOpenAiApiKey=${{ secrets.AZURE_OPENAI_API_KEY }}
+            azureOpenAiApiVersion=${{ env.AZURE_OPENAI_API_VERSION }}
+            azureVisionApiKey=${{ secrets.AZURE_VISION_API_KEY }}
             dbUrl=${{ secrets.DB_URL }}
             emailConnString=${{ secrets.AZURE_EMAIL_CONN_STRING }}
+            photomuseApiKey=${{ secrets.PHOTOMUSE_API_KEY }}
             siteUrl=${{ env.NEXT_PUBLIC_SITE_URL }}
             webAppName=${{ env.AZURE_WEB_APP_NAME }}
           scope: 'resourcegroup'
@@ -46,9 +59,16 @@ jobs:
       - name: Build and push image to ACR
         run: |
           az acr build --resource-group ${{ env.AZURE_RESOURCEGROUP_NAME }} \
-                       --registry ${{ env.AZURE_CONTAINER_REGISTRY_NAME }} \
-                       --image ${{ env.AZURE_WEB_APP_NAME }}:${{ github.sha }} \
-                       --image ${{ env.AZURE_WEB_APP_NAME }}:latest .
+                      --registry ${{ env.AZURE_CONTAINER_REGISTRY_NAME }} \
+                      --image ${{ env.AZURE_WEB_APP_NAME }}:${{ github.sha }} \
+                      --image ${{ env.AZURE_WEB_APP_NAME }}:latest \
+                      --build-arg AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }} \
+                      --build-arg AZURE_OPENAI_API_ENDPOINT=${{ secrets.AZURE_OPENAI_API_ENDPOINT }} \
+                      --build-arg AZURE_OPENAI_API_DEPLOYMENT_NAME=${{ env.AZURE_OPENAI_API_DEPLOYMENT_NAME }} \
+                      --build-arg AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME=${{ env.AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME }} \
+                      --build-arg AZURE_OPENAI_API_INSTANCE_NAME=${{ env.AZURE_OPENAI_API_INSTANCE_NAME }} \
+                      --build-arg AZURE_OPENAI_API_VERSION=${{ env.AZURE_OPENAI_API_VERSION }} \
+                      .
 
       - name: Update Web App with new image
         run: |

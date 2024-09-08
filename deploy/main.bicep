@@ -1,6 +1,16 @@
 @description('Name for the Azure Container Registry')
 param acrName string
 
+param azureAiEndpoint string
+param azureOpenAiApiDeploymentName string
+param azureOpenAiApiEmbeddingDeploymentName string
+param azureOpenAiApiEndpoint string
+param azureOpenAiApiInstanceName string
+param azureOpenAiApiKey string
+param azureOpenAiApiVersion string
+param azureVisionApiKey string
+param photomuseApiKey string
+
 @description('Name for the Web App')
 param webAppName string
 
@@ -80,6 +90,42 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
         {
           name: 'NEXT_PUBLIC_SITE_URL'
           value: siteUrl
+        }
+        {
+          name: 'AZURE_OPENAI_API_DEPLOYMENT_NAME'
+          value: azureOpenAiApiDeploymentName
+        }
+        {
+          name: 'AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME'
+          value: azureOpenAiApiEmbeddingDeploymentName
+        }
+        {
+          name: 'AZURE_OPENAI_API_INSTANCE_NAME'
+          value: azureOpenAiApiInstanceName
+        }
+        {
+          name: 'AZURE_OPENAI_API_VERSION'
+          value: azureOpenAiApiVersion
+        }
+        {
+          name: 'AZURE_AI_ENDPOINT'
+          value: azureAiEndpoint
+        }
+        {
+          name: 'AZURE_OPENAI_API_ENDPOINT'
+          value: azureOpenAiApiEndpoint
+        }
+        {
+          name: 'AZURE_OPENAI_API_KEY'
+          value: azureOpenAiApiKey
+        }
+        {
+          name: 'AZURE_VISION_API_KEY'
+          value: azureVisionApiKey
+        }
+        {
+          name: 'PHOTOMUSE_API_KEY'
+          value: photomuseApiKey
         }
       ]
     }
