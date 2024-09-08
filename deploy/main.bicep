@@ -6,9 +6,16 @@ param azureOpenAiApiDeploymentName string
 param azureOpenAiApiEmbeddingDeploymentName string
 param azureOpenAiApiEndpoint string
 param azureOpenAiApiInstanceName string
+@secure()
 param azureOpenAiApiKey string
 param azureOpenAiApiVersion string
+param azureStorageConnString string
+param azureStorageAccountName string
+@secure()
+param azureStorageAccountKey string
+@secure()
 param azureVisionApiKey string
+@secure()
 param photomuseApiKey string
 
 @description('Name for the Web App')
@@ -118,6 +125,18 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
         {
           name: 'AZURE_OPENAI_API_KEY'
           value: azureOpenAiApiKey
+        }
+        {
+          name: 'AZURE_STORAGE_CONNECTION_STRING'
+          value: azureStorageConnString
+        }
+        {
+          name: 'AZURE_STORAGE_ACCOUNT_NAME'
+          value: azureStorageAccountName
+        }
+        {
+          name: 'AZURE_STORAGE_ACCOUNT_KEY'
+          value: azureStorageAccountKey
         }
         {
           name: 'AZURE_VISION_API_KEY'

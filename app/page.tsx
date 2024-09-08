@@ -1,6 +1,7 @@
 import { Camera } from 'lucide-react';
 import Image from 'next/image';
 import { ModeToggle } from '@/components/mode-toggle';
+import MultiImageUpload from '@/components/multi-image-upload';
 import { RegisterEmailForm } from '@/components/register-email-form';
 import logo from '@/assets/logo.png';
 
@@ -44,6 +45,7 @@ export default async function LandingPage() {
                 </p>
               </div>
               <Image priority src={logo} alt='logo' width={200} height={200} />
+              <MultiImageUpload />
               <RegisterEmailForm />
             </div>
           </div>

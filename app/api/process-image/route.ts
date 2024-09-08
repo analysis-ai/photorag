@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateEmbedding, processImage } from '@/lib/image-processing';
 import { imageVectors, images } from '@/db/schema';
 
-import { db } from '@/db'; // Assume you have this set up for Drizzle
+import { db } from '@/db';
 import { headers } from 'next/headers';
 import { sql } from 'drizzle-orm';
 
@@ -17,31 +17,22 @@ export async function POST(request: NextRequest) {
   try {
     const { imageUrl, userId } = await request.json();
 
-    // Generate description and tags
+    // Use the SAS URL (imageUrl) directly in processImage
     const { basicDescription, detailedDescription, tags } =
       await processImage(imageUrl);
 
-    console.log(
-      '%capp/api/upload-image/route.ts:26 basicDescription',
-      'color: #007acc;',
-      basicDescription
-    );
-    console.log(
-      '%capp/api/upload-image/route.ts:27 detailedDescription',
-      'color: #007acc;',
-      detailedDescription
-    );
-    console.log(
-      '%capp/api/upload-image/route.ts:28 tags',
-      'color: #007acc;',
-      tags
-    );
+    console.log('Basic Description:', basicDescription);
+    console.log('Detailed Description:', detailedDescription);
+    console.log('Tags:', tags);
+
+    // Remove SAS token from URL before storing in database
+    const blobUrl = imageUrl.split('?')[0];
 
     // Insert image into database
     const [imageRecord] = await db
       .insert(images)
       .values({
-        filePath: imageUrl,
+        filePath: blobUrl,
         description: detailedDescription,
         tags: tags.join(','),
         userId
@@ -54,6 +45,8 @@ export async function POST(request: NextRequest) {
         }
       })
       .returning();
+
+    console.log('Image record:', imageRecord);
 
     // Generate embedding for description
     const descriptionEmbedding = await generateEmbedding(detailedDescription);
@@ -78,9 +71,12 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error(error);
+    console.error('Error processing image:', error);
     return NextResponse.json(
-      { message: 'Error processing image' },
+      {
+        message: 'Error processing image',
+        error: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }

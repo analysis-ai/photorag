@@ -48,6 +48,9 @@ jobs:
             azureOpenAiApiInstanceName=${{ env.AZURE_OPENAI_API_INSTANCE_NAME }}
             azureOpenAiApiKey=${{ secrets.AZURE_OPENAI_API_KEY }}
             azureOpenAiApiVersion=${{ env.AZURE_OPENAI_API_VERSION }}
+            azureStorageConnString=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+            azureStorageAccountName=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+            azureStorageAccountKey=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
             azureVisionApiKey=${{ secrets.AZURE_VISION_API_KEY }}
             dbUrl=${{ secrets.DB_URL }}
             emailConnString=${{ secrets.AZURE_EMAIL_CONN_STRING }}
@@ -68,6 +71,9 @@ jobs:
                       --build-arg AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME=${{ env.AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME }} \
                       --build-arg AZURE_OPENAI_API_INSTANCE_NAME=${{ env.AZURE_OPENAI_API_INSTANCE_NAME }} \
                       --build-arg AZURE_OPENAI_API_VERSION=${{ env.AZURE_OPENAI_API_VERSION }} \
+                      --build-arg AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }} \
+                      --build-arg AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} \
+                      --build-arg AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
                       .
 
       - name: Update Web App with new image
