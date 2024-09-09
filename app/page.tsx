@@ -1,9 +1,8 @@
-import logo from '@/assets/logo.png';
+import { Camera } from 'lucide-react';
+import ImageSearchGallery from '@/components/image-search-gallery';
 import { ModeToggle } from '@/components/mode-toggle';
 import MultiImageUpload from '@/components/multi-image-upload';
 import { RegisterEmailForm } from '@/components/register-email-form';
-import { Camera } from 'lucide-react';
-import Image from 'next/image';
 
 export default async function LandingPage() {
   return (
@@ -44,7 +43,7 @@ export default async function LandingPage() {
                   to build a RAG application for photographs.
                 </p>
               </div>
-              <Image priority src={logo} alt='logo' width={200} height={200} />
+              <ImageSearchGallery />
               <MultiImageUpload />
               <RegisterEmailForm />
             </div>
