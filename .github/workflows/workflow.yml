@@ -59,22 +59,34 @@ jobs:
             webAppName=${{ env.AZURE_WEB_APP_NAME }}
           scope: 'resourcegroup'
 
-      - name: Build and push image to ACR
+      - name: Create build script
         run: |
-          az acr build --resource-group ${{ env.AZURE_RESOURCEGROUP_NAME }} \
-                        --registry ${{ env.AZURE_CONTAINER_REGISTRY_NAME }} \
-                        --image ${{ env.AZURE_WEB_APP_NAME }}:${{ github.sha }} \
-                        --image ${{ env.AZURE_WEB_APP_NAME }}:latest \
-                        --build-arg AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }} \
-                        --build-arg AZURE_OPENAI_API_ENDPOINT=${{ secrets.AZURE_OPENAI_API_ENDPOINT }} \
-                        --build-arg AZURE_OPENAI_API_DEPLOYMENT_NAME=${{ env.AZURE_OPENAI_API_DEPLOYMENT_NAME }} \
-                        --build-arg AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME=${{ env.AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME }} \
-                        --build-arg AZURE_OPENAI_API_INSTANCE_NAME=${{ env.AZURE_OPENAI_API_INSTANCE_NAME }} \
-                        --build-arg AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }} \
-                        --build-arg AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} \
-                        --build-arg AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
-                        --build-arg AZURE_OPENAI_API_VERSION=${{ env.AZURE_OPENAI_API_VERSION }} \
-                        .
+          cat << EOF > build_script.sh
+          #!/bin/bash
+          az acr build \
+            --resource-group "${{ env.AZURE_RESOURCEGROUP_NAME }}" \
+            --registry "${{ env.AZURE_CONTAINER_REGISTRY_NAME }}" \
+            --image "${{ env.AZURE_WEB_APP_NAME }}:${{ github.sha }}" \
+            --image "${{ env.AZURE_WEB_APP_NAME }}:latest" \
+            --build-arg AZURE_STORAGE_CONNECTION_STRING="$AZURE_STORAGE_CONNECTION_STRING" \
+            --build-arg AZURE_STORAGE_ACCOUNT_KEY="$AZURE_STORAGE_ACCOUNT_KEY" \
+            --build-arg AZURE_STORAGE_ACCOUNT_NAME="${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}" \
+            --build-arg AZURE_OPENAI_API_KEY="${{ secrets.AZURE_OPENAI_API_KEY }}" \
+            --build-arg AZURE_OPENAI_API_ENDPOINT="${{ secrets.AZURE_OPENAI_API_ENDPOINT }}" \
+            --build-arg AZURE_OPENAI_API_DEPLOYMENT_NAME="${{ env.AZURE_OPENAI_API_DEPLOYMENT_NAME }}" \
+            --build-arg AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME="${{ env.AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME }}" \
+            --build-arg AZURE_OPENAI_API_INSTANCE_NAME="${{ env.AZURE_OPENAI_API_INSTANCE_NAME }}" \
+            --build-arg AZURE_OPENAI_API_VERSION="${{ env.AZURE_OPENAI_API_VERSION }}" \
+            .
+          EOF
+
+      - name: Run build script
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
+        run: |
+          chmod +x build_script.sh
+          ./build_script.sh
 
       - name: Update Web App with new image
         run: |
