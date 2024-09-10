@@ -1,32 +1,32 @@
 import { db } from '@/db';
-import { images, imageVectors } from '@/db/schema';
-import { generateEmbedding } from '@/lib/image-processing';
-import { ImageSearchResult, ImageVectorQueryResult } from '@/types/search';
-import { sql } from 'drizzle-orm';
+import { images } from '@/db/schema';
+import { vectorizeText } from '@/lib/azure-computer-vision';
+import { cosineDistance, getTableColumns } from 'drizzle-orm';
+
+function calculateConfidence(distance: number) {
+  const minDistance = 0; // Assuming this is the ideal (closest match)
+  const maxDistance = 2; // Adjust based on data distribution
+
+  return 1 - (distance - minDistance) / (maxDistance - minDistance);
+}
 
 export async function similaritySearch(query: string, limit: number = 5) {
   try {
-    // TODO - run the query through AI to optimize the search
-    const queryEmbedding = await generateEmbedding(query);
+    const queryEmbedding = await vectorizeText(query);
 
-    // Convert the embedding array to a PostgreSQL-compatible vector string
-    const vectorString = `'[${queryEmbedding.join(',')}]'`;
+    const results = await db
+      .select({
+        ...getTableColumns(images),
+        distance: cosineDistance(images.imageVector, queryEmbedding.vector)
+      })
+      .from(images)
+      .orderBy((fields) => [fields.distance])
+      .limit(limit);
 
-    const results = (await db.execute(sql`
-      SELECT i.*, iv.description_vector, 
-             iv.description_vector <=> ${sql.raw(vectorString)}::vector AS distance
-      FROM ${imageVectors} iv
-      JOIN ${images} i ON i.id = iv.image_id
-      ORDER BY distance
-      LIMIT ${sql.raw(limit.toString())}
-    `)) as unknown as ImageVectorQueryResult[];
-
-    const formattedResults: ImageSearchResult[] = results.map((result) => ({
+    // Normalizing confidence based on cosine distance range (0 to 2)
+    const formattedResults = results.map((result) => ({
       ...result,
-      userId: result.user_id,
-      filePath: result.file_path,
-      tags: result.tags,
-      confidence: 1 - result.distance, // Convert distance to confidence
+      confidence: calculateConfidence(Number(result.distance)),
       distance: result.distance
     }));
 
