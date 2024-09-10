@@ -1,7 +1,15 @@
+import {
+  arrayContained,
+  arrayContains,
+  arrayOverlaps,
+  cosineDistance,
+  getTableColumns
+} from 'drizzle-orm';
+
 import { db } from '@/db';
 import { images } from '@/db/schema';
+import { refineImageQuery } from '@/lib/azure-generate';
 import { vectorizeText } from '@/lib/azure-computer-vision';
-import { cosineDistance, getTableColumns } from 'drizzle-orm';
 
 function calculateConfidence(distance: number) {
   const minDistance = 0; // Assuming this is the ideal (closest match)
@@ -12,7 +20,13 @@ function calculateConfidence(distance: number) {
 
 export async function similaritySearch(query: string, limit: number = 5) {
   try {
-    const queryEmbedding = await vectorizeText(query);
+    const refinedQuery = await refineImageQuery(query);
+
+    console.log('Refined query:', JSON.stringify(refinedQuery.object, null, 2));
+
+    const queryEmbedding = await vectorizeText(refinedQuery.object.newQuery);
+
+    // TODO - do separate search with tags and without and compare results in the UI
 
     const results = await db
       .select({
@@ -20,6 +34,7 @@ export async function similaritySearch(query: string, limit: number = 5) {
         distance: cosineDistance(images.imageVector, queryEmbedding.vector)
       })
       .from(images)
+      .where(arrayOverlaps(images.tags, refinedQuery.object.tags))
       .orderBy((fields) => [fields.distance])
       .limit(limit);
 

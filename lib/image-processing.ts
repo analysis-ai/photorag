@@ -1,5 +1,6 @@
 import { azureOpenAI, azureOpenAIEmbeddings } from '@/lib/azure-open-ai';
 import axios from 'axios';
+import sharp from 'sharp';
 
 const azureVisionApiUrl = `${process.env.AZURE_AI_ENDPOINT}/vision/v3.2/analyze?visualFeatures=Description,Tags`;
 
@@ -35,6 +36,28 @@ export async function generateDescriptionFromTags(
   const response = await azureOpenAI.invoke(prompt);
 
   return response;
+}
+
+export async function resizeImage(buffer: Buffer): Promise<Buffer> {
+  const MAX_WIDTH = 800;
+
+  const image = sharp(buffer);
+  const metadata = await image.metadata();
+
+  const width = metadata.width || 0;
+  const height = metadata.height || 0;
+
+  if (width > height && width > MAX_WIDTH) {
+    return image
+      .resize({ width: MAX_WIDTH, withoutEnlargement: true })
+      .toBuffer();
+  } else if (height > MAX_WIDTH) {
+    return image
+      .resize({ height: MAX_WIDTH, withoutEnlargement: true })
+      .toBuffer();
+  }
+
+  return buffer;
 }
 
 export async function processImage(imageUrl: string) {

@@ -1,7 +1,8 @@
 'use server';
 
-import { uploadManyFiles } from '@/lib/azure-blob';
 import { analyzeImage } from '@/lib/azure-computer-vision';
+import { errorMessage } from '@/lib/utils';
+import { uploadManyImages } from '@/lib/azure-blob';
 
 export async function uploadImages(formData: FormData) {
   const files = formData.getAll('images') as File[];
@@ -12,7 +13,7 @@ export async function uploadImages(formData: FormData) {
   }
 
   try {
-    const uploadResults = await uploadManyFiles(files);
+    const uploadResults = await uploadManyImages(files);
 
     console.log('Files uploaded:', uploadResults);
 
@@ -30,7 +31,7 @@ export async function uploadImages(formData: FormData) {
 
     return { message: 'Files uploaded successfully', images };
   } catch (error) {
-    console.error('Error uploading files:', error);
+    console.error('Error uploading files:', errorMessage(error));
     throw new Error('File upload failed');
   }
 }

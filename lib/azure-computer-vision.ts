@@ -1,12 +1,14 @@
-import { azureOpenAI } from '@/lib/azure-open-ai';
-import { ImageModel } from '@/models';
 import {
   CaptionResult,
   Response,
   TagElement
 } from '@/types/azure-computer-vision';
+
+import { ImageModel } from '@/models';
 import { ImageType } from '@/types/image';
 import axios from 'axios';
+import { azureOpenAI } from '@/lib/azure-open-ai';
+import { describeImage } from '@/lib/azure-generate';
 
 export async function analyzeImage(
   imageUrl: string,
@@ -28,6 +30,11 @@ export async function analyzeImage(
       }
     }
   );
+
+  // TODO - just testing
+  const genCaption = await describeImage(imageUrl);
+
+  console.log('Generated caption:', genCaption);
 
   const { captionResult, metadata, tagsResult } = data as Response;
 
@@ -55,18 +62,6 @@ export async function analyzeImage(
   });
 
   return image;
-}
-
-function normalizeVector(vector: number[]): number[] {
-  const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
-  return vector.map((val) => val / magnitude);
-}
-
-export async function refineImageQuery(query: string) {
-  const prompt = `Take this user query and return 5 high-confidence tags separated by commas.
-  Query: "${query}"`;
-
-  return await azureOpenAI.invoke(prompt);
 }
 
 export async function vectorizeImage(
@@ -108,9 +103,7 @@ export async function vectorizeText(
     }
   );
 
-  const { modelVersion, vector } = data;
-
-  return { modelVersion, vector: normalizeVector(vector) };
+  return data;
 }
 
 export async function generateDescriptionFromTags(

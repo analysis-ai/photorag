@@ -1,3 +1,4 @@
+import { ErrorObject } from '@/types/error';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -5,12 +6,34 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-type ErrorObject = {
-  formErrors: string[];
-  fieldErrors: {
-    [key: string]: string[];
-  };
-};
+export function cleanFilename(filename: string): string {
+  // Remove file extension
+  const parts = filename.split('.');
+  const extension = parts.pop();
+  let name = parts.join('.');
+
+  // Convert to lowercase and replace spaces and special characters with underscores
+  name = name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+
+  // Remove leading and trailing underscores
+  name = name.replace(/^_+|_+$/g, '');
+
+  // Ensure the name isn't empty
+  if (name.length === 0) {
+    name = 'file';
+  }
+
+  // Reattach the extension
+  return `${name}.${extension}`;
+}
+
+export function errorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'An error occurred';
+}
 
 // Function to format Zod errors
 export function formatZodErrors(

@@ -1,10 +1,12 @@
 import {
   BlobSASPermissions,
   BlobServiceClient,
-  generateBlobSASQueryParameters,
-  StorageSharedKeyCredential
+  StorageSharedKeyCredential,
+  generateBlobSASQueryParameters
 } from '@azure/storage-blob';
-import { v4 as uuidv4 } from 'uuid';
+
+import { cleanFilename } from '@/lib/utils';
+import { resizeImage } from '@/lib/image-processing';
 
 const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME || '';
 const AZURE_STORAGE_ACCOUNT_KEY = process.env.AZURE_STORAGE_ACCOUNT_KEY || '';
@@ -39,13 +41,13 @@ export function generateSasUrl(blobName: string): string {
   return `${blobClient.url}?${sasToken}`;
 }
 
-async function uploadFileWithRetry(file: File, retryCount = 1) {
-  const blobName = `${uuidv4()}-${file.name}`;
+async function uploadImageWithRetry(file: File, retryCount = 1) {
+  const blobName = cleanFilename(file.name);
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = await resizeImage(Buffer.from(arrayBuffer));
 
     await blockBlobClient.upload(buffer, buffer.length);
 
@@ -64,7 +66,7 @@ async function uploadFileWithRetry(file: File, retryCount = 1) {
     const sasUrl = `${blockBlobClient.url}?${sasToken}`;
 
     return {
-      filename: file.name,
+      filename: blobName,
       blobUrl: blockBlobClient.url,
       sasUrl: sasUrl
     };
@@ -73,7 +75,7 @@ async function uploadFileWithRetry(file: File, retryCount = 1) {
       console.log(
         `Upload failed for ${file.name}. Retrying... (${retryCount} retries left)`
       );
-      return uploadFileWithRetry(file, retryCount - 1); // Retry once
+      return uploadImageWithRetry(file, retryCount - 1); // Retry once
     } else {
       console.error(`Upload failed for ${file.name} after retrying.`, error);
       throw error; // Rethrow the error after the retry fails
@@ -81,7 +83,7 @@ async function uploadFileWithRetry(file: File, retryCount = 1) {
   }
 }
 
-export async function uploadManyFiles(files: File[]) {
-  const uploadPromises = files.map((file) => uploadFileWithRetry(file));
+export async function uploadManyImages(files: File[]) {
+  const uploadPromises = files.map((file) => uploadImageWithRetry(file));
   return Promise.all(uploadPromises);
 }

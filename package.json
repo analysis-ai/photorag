@@ -13,6 +13,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@ai-sdk/azure": "^0.0.36",
     "@azure/communication-email": "^1.0.0",
     "@azure/openai": "^2.0.0-beta.1",
     "@azure/storage-blob": "^12.24.0",
@@ -23,6 +24,7 @@
     "@radix-ui/react-progress": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
+    "ai": "^3.3.31",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
