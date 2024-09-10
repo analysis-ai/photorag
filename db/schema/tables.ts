@@ -3,6 +3,7 @@ import {
   AnyPgColumn,
   index,
   integer,
+  jsonb,
   pgTable,
   serial,
   text,
@@ -53,8 +54,13 @@ export const images = pgTable(
     id: serial('id').primaryKey(),
     filePath: text('file_path').unique().notNull(),
     filename: text('filename'),
+    caption: text('caption'),
     description: text('description'),
-    tags: text('tags'),
+    metadata: jsonb('metadata').default('{}'),
+    tags: text('tags').array(),
+    descriptionVector: vector('description_vector', { dimensions: 1024 }),
+    imageVector: vector('image_vector', { dimensions: 1024 }),
+    vectorModel: text('vector_model'),
     userId: integer('user_id')
       .notNull()
       .references(() => users.id),
@@ -73,38 +79,21 @@ export const images = pgTable(
         'gin',
         sql`to_tsvector('english', ${table.description})`
       ),
-      idxTagsGin: index('idx_images_tags_gin').using(
-        'gin',
-        sql`to_tsvector('english', ${table.tags})`
+      idxTagsGin: index('idx_images_tags_gin').using('gin', table.tags),
+      cosineDescription: index('cosine_description_index').using(
+        'hnsw',
+        table.descriptionVector.op('vector_cosine_ops')
+      ),
+      cosineImage: index('cosine_image_index').using(
+        'hnsw',
+        table.imageVector.op('vector_cosine_ops')
+      ),
+      l2Image: index('l2_image_index').using(
+        'hnsw',
+        table.imageVector.op('vector_l2_ops')
       )
     };
   }
-);
-
-export const imageVectors = pgTable(
-  'image_vectors',
-  {
-    id: serial('id').primaryKey(),
-    imageId: integer('image_id')
-      .references(() => images.id)
-      .unique(),
-    descriptionVector: vector('description_vector', { dimensions: 1536 }),
-    imageVector: vector('image_vector', { dimensions: 512 })
-  },
-  (table) => ({
-    cosineDescription: index('cosine_description_index').using(
-      'hnsw',
-      table.descriptionVector.op('vector_cosine_ops')
-    ),
-    cosineImage: index('cosine_image_index').using(
-      'hnsw',
-      table.imageVector.op('vector_cosine_ops')
-    ),
-    l2Image: index('l2_image_index').using(
-      'hnsw',
-      table.imageVector.op('vector_l2_ops')
-    )
-  })
 );
 
 export const users = pgTable(

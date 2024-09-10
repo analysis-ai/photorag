@@ -1,0 +1,1 @@
+ALTER TABLE "images" ALTER COLUMN "image_vector" SET DATA TYPE vector(1024);

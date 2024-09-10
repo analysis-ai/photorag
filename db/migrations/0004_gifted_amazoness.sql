@@ -1,1 +1,0 @@
-ALTER TABLE "image_vectors" ADD CONSTRAINT "image_vectors_image_id_unique" UNIQUE("image_id");
