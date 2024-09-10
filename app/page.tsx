@@ -22,7 +22,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <ImageSearchGallery />
-              <MultiImageUpload />
+              {/* <MultiImageUpload /> */}
               <RegisterEmailForm />
             </div>
           </div>
