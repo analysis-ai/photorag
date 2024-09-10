@@ -74,7 +74,7 @@ export default function ImageSearchGallery() {
                 <div className='relative w-full h-48'>
                   <Image
                     src={result.filePath}
-                    alt={result.description || 'Image'}
+                    alt={result.caption || 'Image'}
                     layout='fill'
                     objectFit='cover'
                   />
