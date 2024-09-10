@@ -1,16 +1,15 @@
+import { resizeImage } from '@/lib/image-processing';
+import { cleanFilename } from '@/lib/utils';
 import {
   BlobSASPermissions,
   BlobServiceClient,
-  StorageSharedKeyCredential,
-  generateBlobSASQueryParameters
+  generateBlobSASQueryParameters,
+  StorageSharedKeyCredential
 } from '@azure/storage-blob';
-
-import { cleanFilename } from '@/lib/utils';
-import { resizeImage } from '@/lib/image-processing';
 
 const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME || '';
 const AZURE_STORAGE_ACCOUNT_KEY = process.env.AZURE_STORAGE_ACCOUNT_KEY || '';
-const CONTAINER_NAME = 'images';
+const CONTAINER_NAME = 'photos';
 
 const sharedKeyCredential = new StorageSharedKeyCredential(
   AZURE_STORAGE_ACCOUNT_NAME,

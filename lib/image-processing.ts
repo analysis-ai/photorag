@@ -42,11 +42,15 @@ export async function resizeImage(buffer: Buffer): Promise<Buffer> {
   const MAX_WIDTH = 800;
   const watermarkText = 'www.MegWise.com';
 
-  const image = sharp(buffer);
+  let image = sharp(buffer);
   const metadata = await image.metadata();
 
   const width = metadata.width || 0;
   const height = metadata.height || 0;
+
+  if (metadata.orientation && metadata.orientation >= 2) {
+    image = image.rotate();
+  }
 
   // Resize image if necessary
   if (width > height && width > MAX_WIDTH) {
@@ -59,7 +63,6 @@ export async function resizeImage(buffer: Buffer): Promise<Buffer> {
   const watermark = await sharp({
     text: {
       text: `<span foreground="white">${watermarkText}</span>`,
-      font: 'sans',
       width: 300,
       height: 125,
       align: 'center',
