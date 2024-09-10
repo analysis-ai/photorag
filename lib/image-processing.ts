@@ -1,6 +1,15 @@
+import path from 'path';
+
 import { azureOpenAI, azureOpenAIEmbeddings } from '@/lib/azure-open-ai';
 import axios from 'axios';
 import sharp from 'sharp';
+
+const fontPath = path.join(
+  process.cwd(),
+  'public',
+  'fonts',
+  'OpenSans-Regular.ttf'
+);
 
 const azureVisionApiUrl = `${process.env.AZURE_AI_ENDPOINT}/vision/v3.2/analyze?visualFeatures=Description,Tags`;
 
@@ -63,6 +72,8 @@ export async function resizeImage(buffer: Buffer): Promise<Buffer> {
   const watermark = await sharp({
     text: {
       text: `<span foreground="white">${watermarkText}</span>`,
+      font: 'Open Sans',
+      fontfile: fontPath,
       width: 300,
       height: 125,
       align: 'center',
