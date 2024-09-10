@@ -1,6 +1,5 @@
-import { generateObject, generateText } from 'ai';
-
 import { azureAiModel } from '@/lib/azure-open-ai';
+import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
 
 const RefineQuerySchema = z.object({
@@ -38,10 +37,12 @@ export async function describeImage(imageUrl: string) {
 
 export async function refineImageQuery(query: string) {
   const prompt = {
-    instructions: `Refine the following user query for image search purposes. The goal is to improve the accuracy and relevance of the search results. Leverage your knowledge to suggest terms the user might not have considered and enhance the query with more specific or related keywords. 
+    instructions: `Refine the following user query for image search purposes. The goal is to improve the accuracy and relevance of the search results. Leverage your knowledge to suggest terms the user might not have considered and enhance the query with more specific or related keywords.
     
-    The refined query should be more concise and precise, using terms that will increase the likelihood of finding high-quality, relevant images. Additionally, generate five high-confidence search tags that can further help in filtering or categorizing the images. The tags should be one word.
+    The refined query should be more concise and precise, using terms that will increase the likelihood of finding high-quality, relevant images. Additionally, ensure that keywords and tags are provided in their singular form where appropriate. 
     
+    Also, generate five high-confidence search tags that can further help in filtering or categorizing the images. The tags should be one word and in singular form.
+
     Original user query: "${query}"`,
     userOriginalQuery: query
   };
@@ -50,7 +51,7 @@ export async function refineImageQuery(query: string) {
     model: azureAiModel,
     system: `You are an AI assistant specialized in refining user queries to improve image search results.
              Your task is to take a simple user query and refine it to be more specific, concise, and optimized for better search accuracy.
-             Additionally, generate 5 relevant search tags to enhance the user's ability to find what they are looking for.`,
+             Additionally, generate 5 relevant search tags (in singular form) to enhance the user's ability to find what they are looking for.`,
     schema: RefineQuerySchema,
     schemaName: 'RefineQuerySchema',
     schemaDescription:

@@ -81,9 +81,7 @@ export default function ImageSearchGallery() {
                 </div>
               </CardContent>
               <CardFooter className='flex flex-col items-start p-4'>
-                <p className='text-sm mb-2 line-clamp-2'>
-                  {result.description}
-                </p>
+                <p className='text-sm mb-2 line-clamp-2'>{result.caption}</p>
                 <div className='flex flex-wrap gap-1 mb-2'>
                   {result.tags?.map((tag, index) => (
                     <Badge key={index} variant='secondary'>
