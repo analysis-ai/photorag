@@ -5,31 +5,32 @@ import React, { useState } from 'react';
 import { searchImages } from '@/app/actions/search-images-action';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { SimilaritySearchResults } from '@/types/search';
-import { ChevronDown, Search } from 'lucide-react';
-import Image from 'next/image';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Search, Sparkles } from 'lucide-react';
+
+import { PhotoCard } from './photo-card';
 
 export default function ImageSearchGallery() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SimilaritySearchResults>([]);
+  const [aiQuery, setAiQuery] =
+    useState<SimilaritySearchResults['refinedQuery']>();
+  const [results, setResults] = useState<
+    SimilaritySearchResults['formattedResults']
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = async (searchQuery: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await searchImages(query, 5);
+      const data = await searchImages(searchQuery, 5);
       setResults(data.results);
+      setAiQuery(data.refinedQuery);
+      setQuery(searchQuery); // Update the input field with the searched query
     } catch (error) {
       console.error('Search error:', error);
       setError(
@@ -42,76 +43,134 @@ export default function ImageSearchGallery() {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch(query);
+  };
+
+  const handleTagClick = (tag: string) => {
+    handleSearch(tag);
+  };
+
   return (
-    <div className='container mx-auto px-4 py-8'>
-      <h1 className='text-3xl font-bold mb-8 text-center'>
+    <div className='container mx-auto px-4 py-8 min-h-screen'>
+      <motion.h1
+        className='text-4xl font-bold mb-8 text-center text-primary'
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         Image Search Gallery
-      </h1>
+      </motion.h1>
 
-      <form onSubmit={handleSearch} className='mb-8 flex gap-2'>
-        <Input
-          type='text'
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder='Enter your search query'
-          className='flex-grow'
-        />
-        <Button type='submit' disabled={isLoading}>
-          <Search
-            className={cn('mr-2 h-4 w-4', isLoading ? 'animate-pulse' : '')}
+      <motion.div
+        className='mb-8 space-y-4'
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <form onSubmit={handleSubmit} className='flex gap-2'>
+          <Input
+            type='text'
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder='Enter your search query'
+            className='flex-grow border-2 border-primary/20 focus:border-primary rounded-full px-6'
           />
-          Search
-        </Button>
-      </form>
+          <Button
+            type='submit'
+            disabled={isLoading}
+            className='rounded-full bg-primary hover:bg-primary/90 text-primary-foreground'
+          >
+            <Search
+              className={cn('mr-2 h-4 w-4', isLoading ? 'animate-spin' : '')}
+            />
+            Search
+          </Button>
+        </form>
 
-      {error && <p className='text-center text-red-500 mb-4'>{error}</p>}
-
-      {results.length > 0 ? (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {results.map((result) => (
-            <Card key={result.id} className='overflow-hidden'>
-              <CardContent className='p-0'>
-                <div className='relative w-full h-48'>
-                  <Image
-                    src={result.filePath}
-                    alt={result.caption || 'Image'}
-                    layout='fill'
-                    objectFit='cover'
-                  />
-                </div>
-              </CardContent>
-              <CardFooter className='flex flex-col items-start p-4'>
-                <p className='text-sm mb-2 line-clamp-2'>
-                  {result.description}
-                </p>
-                <div className='flex flex-wrap gap-1 mb-2'>
-                  {result.tags?.map((tag, index) => (
-                    <Badge key={index} variant='secondary'>
-                      {tag.trim()}
-                    </Badge>
+        <AnimatePresence>
+          {aiQuery && (
+            <motion.div
+              className='bg-card p-6 rounded-xl shadow-lg border border-primary/20'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h2 className='text-lg font-semibold mb-2 flex items-center justify-center text-primary'>
+                <Sparkles className='mr-2 h-5 w-5 text-primary' />
+                AI Refined Query
+              </h2>
+              <p className='text-md mb-3 font-medium text-center text-primary'>
+                {aiQuery.newQuery}
+              </p>
+              {aiQuery.tags && aiQuery.tags.length > 0 && (
+                <motion.div className='flex flex-wrap gap-2 justify-center'>
+                  {aiQuery.tags.map((tag, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.2, delay: index * 0.1 }}
+                    >
+                      <Badge
+                        variant='secondary'
+                        className='bg-secondary text-secondary-foreground hover:bg-secondary/80 cursor-pointer'
+                        onClick={() => handleTagClick(tag)}
+                      >
+                        {tag.trim()}
+                      </Badge>
+                    </motion.div>
                   ))}
-                </div>
-                <Collapsible className='w-full'>
-                  <CollapsibleTrigger className='flex items-center justify-between w-full text-sm text-muted-foreground hover:underline'>
-                    <span>Show details</span>
-                    <ChevronDown className='h-4 w-4' />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className='mt-2 space-y-1 text-sm'>
-                    <p>ID: {result.id}</p>
-                    <p>Distance: {Number(result.distance)}</p>
-                    <p>Confidence: {(result.confidence * 100).toFixed(2)}%</p>
-                    <p className='text-sm mb-2'>{result.description}</p>
-                  </CollapsibleContent>
-                </Collapsible>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <p className='text-center text-muted-foreground'>
-          No results to display. Try searching for something!
-        </p>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {error && (
+        <motion.p
+          className='text-center text-destructive mb-4 bg-destructive/10 p-3 rounded-lg'
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          {error}
+        </motion.p>
       )}
+
+      <AnimatePresence>
+        {results.length > 0 ? (
+          <motion.div
+            className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            {results.map((result, index) => (
+              <motion.div
+                key={result.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <PhotoCard result={result} onTagClick={handleTagClick} />
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <motion.p
+            className='text-center text-primary bg-primary/10 p-4 rounded-lg shadow'
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            No results to display. Try searching for something!
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,6 +1,5 @@
-import { generateObject, generateText } from 'ai';
-
 import { azureAiModel } from '@/lib/azure-open-ai';
+import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
 
 const RefineQuerySchema = z.object({
@@ -10,9 +9,9 @@ const RefineQuerySchema = z.object({
       'A refined query based on the users original query, optimized to help improve image search results.'
     ),
   tags: z
-    .array(z.string())
+    .array(z.string().toLowerCase())
     .describe(
-      'Five high-confidence, one-word tags, that will help improve image search results for the given query.'
+      'Five high-confidence, one-word tags, that will help improve image search results for the given query. These must be lowercased.'
     )
 });
 
@@ -40,7 +39,7 @@ export async function refineImageQuery(query: string) {
   const prompt = {
     instructions: `Refine the following user query for image search purposes. The goal is to improve the accuracy and relevance of the search results. Leverage your knowledge to suggest terms the user might not have considered and enhance the query with more specific or related keywords. 
     
-    The refined query should be more concise and precise, using terms that will increase the likelihood of finding high-quality, relevant images. Additionally, generate five high-confidence search tags that can further help in filtering or categorizing the images. The tags should be one word.
+    The refined query should be more concise and precise, using terms that will increase the likelihood of finding high-quality, relevant images. Additionally, generate Five high-confidence search tags that can further help in filtering or categorizing the images. The tags should be one word.
     
     Original user query: "${query}"`,
     userOriginalQuery: query
@@ -56,7 +55,7 @@ export async function refineImageQuery(query: string) {
     schemaDescription:
       'Schema for refining a user query and generating relevant image search tags to improve search results.',
     prompt: JSON.stringify(prompt),
-    temperature: 0.7
+    temperature: 0.5
   });
 
   return result;
