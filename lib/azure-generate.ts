@@ -9,9 +9,9 @@ const RefineQuerySchema = z.object({
       'A refined query based on the users original query, optimized to help improve image search results.'
     ),
   tags: z
-    .array(z.string())
+    .array(z.string().toLowerCase())
     .describe(
-      'Five high-confidence, one-word tags, that will help improve image search results for the given query.'
+      'Five high-confidence, one-word tags, that will help improve image search results for the given query. These must be lowercased.'
     )
 });
 
@@ -57,7 +57,7 @@ export async function refineImageQuery(query: string) {
     schemaDescription:
       'Schema for refining a user query and generating relevant image search tags to improve search results.',
     prompt: JSON.stringify(prompt),
-    temperature: 0.7
+    temperature: 0.5
   });
 
   return result;

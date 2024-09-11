@@ -1,14 +1,13 @@
+import { describeImage } from '@/lib/azure-generate';
+import { azureOpenAI } from '@/lib/azure-open-ai';
+import { ImageModel } from '@/models';
 import {
   CaptionResult,
   Response,
   TagElement
 } from '@/types/azure-computer-vision';
-
-import { ImageModel } from '@/models';
 import { ImageType } from '@/types/image';
 import axios from 'axios';
-import { azureOpenAI } from '@/lib/azure-open-ai';
-import { describeImage } from '@/lib/azure-generate';
 
 export async function analyzeImage(
   imageUrl: string,
@@ -56,12 +55,20 @@ export async function analyzeImage(
     filename,
     imageVector,
     metadata,
-    tags: tagsResult.values.map((tag) => tag.name),
+    tags: getTopTagsByConfidence(tagsResult.values),
     userId,
     vectorModel: modelVersion
   });
 
   return image;
+}
+
+function getTopTagsByConfidence(tagsResult: TagElement[]) {
+  // Sort the tags by confidence in descending order
+  const sortedTags = tagsResult.sort((a, b) => b.confidence - a.confidence);
+
+  // Get the top 5 tags and map to their names
+  return sortedTags.slice(0, 5).map((tag) => tag.name);
 }
 
 export async function vectorizeImage(
