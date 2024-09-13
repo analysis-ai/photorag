@@ -1,7 +1,5 @@
 import ImageSearchGallery from '@/components/image-search-gallery';
-import MultiImageUpload from '@/components/multi-image-upload';
 import { Navbar } from '@/components/navbar';
-import { RegisterEmailForm } from '@/components/register-email-form';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -21,9 +19,15 @@ export default function LandingPage() {
                   to build a RAG application for photographs.
                 </p>
               </div>
+              <p className='text-sm text-muted-foreground w-96 border rounded-md p-2'>
+                All images on https://rag.photomuse.ai are the property of Meg
+                Wise Photography and may not be used for any purpose without
+                permission. <br /> © {new Date().getFullYear()}{' '}
+                www.MegWise.com. All rights reserved.
+              </p>
               <ImageSearchGallery />
+
               {/* <MultiImageUpload /> */}
-              <RegisterEmailForm />
             </div>
           </div>
         </section>
@@ -35,7 +39,7 @@ export default function LandingPage() {
         <nav className='flex gap-4 sm:ml-auto sm:gap-6'>
           <Link
             className='text-xs text-muted-foreground hover:text-foreground'
-            href='https://github.com/analysis-ai/photorag'
+            href='https://github.com/dubscode/photorag'
             target='_blank'
             rel='noreferrer'
           >

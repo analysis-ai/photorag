@@ -16,7 +16,7 @@ az acr build --resource-group photorag --registry photoragacr --image photoragwe
 To register the repo, application, etc:
 
 ```bash
-githubOrganizationName='analysis-ai'
+githubOrganizationName='dubscode'
 githubRepositoryName='photorag'
 
 applicationRegistrationDetails=$(az ad app create --display-name 'photorag')

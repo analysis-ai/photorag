@@ -27,15 +27,14 @@ PhotoMuse is an advanced image search and analysis application that uses AI to g
 - PostgreSQL with pgvector extension
 - Drizzle ORM
 - Azure OpenAI API (for GPT-4 and embeddings)
-- LangChain.js
 
 ## Setup
 
 1. Clone the repository:
 
 ```bash
-git clone git@github.com:analysis-ai/photorag.git
-cd photomuse
+git clone git@github.com/dubscode/photorag.git
+cd photorag
 ```
 
 2. Install dependencies:
@@ -53,7 +52,6 @@ AZURE_OPENAI_API_DEPLOYMENT_NAME=your_deployment_name
 AZURE_OPENAI_API_VERSION=your_api_version
 AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME=your_embedding_deployment_name
 DATABASE_URL=your_postgres_database_url
-PHOTOMUSE_API_KEY=your_chosen_api_key_for_authentication # This is not a long term solution.
 ```
 
 4. Set up your PostgreSQL database with the pgvector extension.
@@ -63,42 +61,6 @@ PHOTOMUSE_API_KEY=your_chosen_api_key_for_authentication # This is not a long te
 ```bash
 npm run db:migrate
 ```
-
-## Usage
-
-1. Upload images through the provided UI or API endpoint.
-2. The system will automatically generate descriptions and tags for the images.
-3. Use the search functionality to find similar images based on natural language queries.
-
-## API Endpoints
-
-### POST /api/upload-image
-
-Uploads an image and generates its description and tags.
-
-Request body:
-
-```json
-{
-  "imageUrl": "https://example.com/image.jpg",
-  "userId": 123
-}
-```
-
-### POST /api/image-search
-
-Searches for similar images based on a text query.
-
-Request body:
-
-```json
-{
-  "query": "a sunny beach with palm trees",
-  "limit": 5
-}
-```
-
-Note: All API requests require the `x-api-key` header with your PHOTOMUSE_API_KEY.
 
 ## Understanding Search Results
 
