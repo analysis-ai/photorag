@@ -1,24 +1,25 @@
-# PHOTORAG - PhotoMuse: AI-Powered Image Search and Analysis
+# PhotoMuse: AI-Powered Image Search and Analysis
 
-PhotoMuse is an advanced image search and analysis application that uses AI to generate descriptions and tags for images, and then allows for similarity-based searching using natural language queries. This is my submission for the [Microsoft RAG Hack](https://github.com/microsoft/RAG_Hack)
+PhotoMuse is an advanced image search and analysis application that uses AI to generate descriptions and tags for images, and then allows for similarity-based searching using natural language queries. This is my submission for the [Microsoft RAG Hack](https://github.com/microsoft/RAG_Hack).
 
 ## Table of Contents
 
 1. [Features](#features)
 2. [Technology Stack](#technology-stack)
 3. [Setup](#setup)
-4. [Usage](#usage)
-5. [API Endpoints](#api-endpoints)
-6. [Understanding Search Results](#understanding-search-results)
-7. [Contributing](#contributing)
-8. [License](#license)
+4. [Understanding Search Results](#understanding-search-results)
+5. [How It Works](#how-it-works)
+6. [Contributing](#contributing)
+7. [License](#license)
 
 ## Features
 
-- Image upload and automatic description generation using GPT-4
+- Image upload and automatic description generation using Azure Computer Vision and GPT-4
 - Automatic tagging of images
 - Vector embedding of image descriptions for efficient similarity search
 - Natural language querying of the image database
+- Refined search queries using AI
+- Confidence scoring and explanations for search results
 
 ## Technology Stack
 
@@ -27,13 +28,15 @@ PhotoMuse is an advanced image search and analysis application that uses AI to g
 - PostgreSQL with pgvector extension
 - Drizzle ORM
 - Azure OpenAI API (for GPT-4 and embeddings)
+- Azure Computer Vision API
+- Azure Blob Storage
 
 ## Setup
 
 1. Clone the repository:
 
 ```bash
-git clone git@github.com/dubscode/photorag.git
+git clone https://github.com/dubscode/photorag.git
 cd photorag
 ```
 
@@ -51,6 +54,8 @@ AZURE_OPENAI_API_INSTANCE_NAME=your_instance_name
 AZURE_OPENAI_API_DEPLOYMENT_NAME=your_deployment_name
 AZURE_OPENAI_API_VERSION=your_api_version
 AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME=your_embedding_deployment_name
+AZURE_AI_ENDPOINT=your_azure_ai_endpoint
+AZURE_VISION_API_KEY=your_azure_vision_api_key
 DATABASE_URL=your_postgres_database_url
 ```
 
@@ -67,43 +72,30 @@ npm run db:migrate
 When you perform a search, each result includes the following key information:
 
 - `id`: The unique identifier of the image in the database.
-- `filePath`: The URL or path to the image file.
+- `filePath`: The URL or path to the image file (returned as a SAS URL for Azure Blob Storage).
 - `description`: The AI-generated description of the image.
 - `tags`: AI-generated tags for the image.
 - `distance`: A measure of how different the query is from the image description.
 - `confidence`: A score indicating how well the image matches the query.
+- `confidenceExplanation`: A detailed explanation of why this image was matched and how the confidence score was calculated.
 
 ### Confidence Score
 
-The confidence score is calculated as `1 - distance`. Here's how to interpret it:
+The confidence score is calculated based on the cosine similarity between the query embedding and the image description embedding. Here's how to interpret it:
 
 - A score closer to 1 indicates a higher confidence in the match.
 - A score closer to 0 indicates a lower confidence.
 
-For example:
+The confidence explanation provides more context about why an image was matched, including information about matching tags and the similarity score.
 
-- A confidence of 0.95 suggests a very strong match.
-- A confidence of 0.50 suggests a moderate match.
-- A confidence of 0.10 suggests a weak match.
+## How It Works
 
-Note that the exact thresholds for what constitutes a "good" match may vary depending on your specific use case and data. You may need to experiment to find the right thresholds for your application.
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-This README provides a comprehensive overview of your PhotoMuse application, including setup instructions, usage guidelines, and an explanation of the confidence scores. You may want to adjust some details based on your specific implementation or add more sections as needed.
-
-Some suggestions for additional content you might want to include:
-
-1. A more detailed explanation of how the vector embedding and similarity search work.
-2. Examples of how to use the API endpoints with curl or JavaScript fetch.
-3. Information about the database schema and how the data is structured.
-4. Any performance considerations or limitations users should be aware of.
-5. Future plans or roadmap for the project.
-
-Would you like me to expand on any particular section of this README or add any additional information?
+1. **Image Upload**: When an image is uploaded, it's stored in Azure Blob Storage.
+2. **Image Analysis**: The image is analyzed using Azure Computer Vision to generate tags and captions.
+3. **Description Generation**: GPT-4 is used to generate a detailed description based on the tags and captions.
+4. **Vector Embedding**: The description is converted into a vector embedding using Azure OpenAI.
+5. **Search**: When a user performs a search:
+   - The query is refined using GPT-4 to extract relevant tags and improve the search terms.
+   - The refined query is converted to a vector embedding.
+   - A similarity search is performed using cosine similarity between the query embedding and the stored image embeddings.
+   - Results are ranked based on similarity and tag matches.

@@ -19,12 +19,6 @@ export default function LandingPage() {
                   to build a RAG application for photographs.
                 </p>
               </div>
-              <p className='text-sm text-muted-foreground w-96 border rounded-md p-2'>
-                All images on https://rag.photomuse.ai are the property of Meg
-                Wise Photography and may not be used for any purpose without
-                permission. <br /> © {new Date().getFullYear()}{' '}
-                www.MegWise.com. All rights reserved.
-              </p>
               <ImageSearchGallery />
 
               {/* <MultiImageUpload /> */}

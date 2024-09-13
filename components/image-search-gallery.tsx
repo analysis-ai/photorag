@@ -171,6 +171,36 @@ export default function ImageSearchGallery() {
           </motion.p>
         )}
       </AnimatePresence>
+
+      <motion.div
+        className='mt-8'
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
+        <p className='text-sm text-muted-foreground max-w-2xl mx-auto border rounded-md p-4 text-center'>
+          <strong>Disclaimer:</strong>
+          <br />
+          All images on{' '}
+          <a href='https://rag.photomuse.ai'>https://rag.photomuse.ai</a> are
+          the exclusive property of <strong>Meg Wise Photography</strong> and
+          are protected by international copyright laws. Unauthorized use,
+          reproduction, distribution, or modification of these images without
+          prior written consent is strictly prohibited.
+          <br />
+          <br />
+          <strong>Permission Notice for Microsoft Corporation:</strong>
+          <br />
+          Permission is granted to Microsoft Corporation and its affiliates to
+          use screenshots or recordings of this application, which may include
+          the protected images, solely for the purposes of promoting the
+          Microsoft Hackathon, showcasing submissions, or related marketing
+          activities.
+          <br />© {new Date().getFullYear()}{' '}
+          <a href='https://www.MegWise.com'>www.MegWise.com</a>. All rights
+          reserved.
+        </p>
+      </motion.div>
     </div>
   );
 }

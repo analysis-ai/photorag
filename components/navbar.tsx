@@ -13,18 +13,6 @@ export const Navbar = () => {
         </span>
       </Link>
       <nav className='ml-auto flex items-center gap-4 sm:gap-6'>
-        <Link
-          className='text-sm font-medium text-muted-foreground hover:text-foreground'
-          href='#'
-        >
-          Features
-        </Link>
-        <Link
-          className='text-sm font-medium text-muted-foreground hover:text-foreground'
-          href='#'
-        >
-          About
-        </Link>
         <ModeToggle />
       </nav>
     </header>
