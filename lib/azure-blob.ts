@@ -10,6 +10,7 @@ import {
 const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME || '';
 const AZURE_STORAGE_ACCOUNT_KEY = process.env.AZURE_STORAGE_ACCOUNT_KEY || '';
 const CONTAINER_NAME = 'photos';
+const SEARCHES_CONTAINER_NAME = 'searches';
 
 const sharedKeyCredential = new StorageSharedKeyCredential(
   AZURE_STORAGE_ACCOUNT_NAME,
@@ -21,6 +22,9 @@ const blobServiceClient = new BlobServiceClient(
 );
 
 const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+const searchesClient = blobServiceClient.getContainerClient(
+  SEARCHES_CONTAINER_NAME
+);
 
 export function generateSasUrl(blobName: string): string {
   const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
@@ -40,20 +44,31 @@ export function generateSasUrl(blobName: string): string {
   return `${blobClient.url}?${sasToken}`;
 }
 
-async function uploadImageWithRetry(file: File, retryCount = 1) {
+export async function uploadImageWithRetry(
+  file: File,
+  retryCount = 1,
+  isSearchImage = false
+) {
   const blobName = cleanFilename(file.name);
-  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+  const blockBlobClient = isSearchImage
+    ? searchesClient.getBlockBlobClient(blobName)
+    : containerClient.getBlockBlobClient(blobName);
+
+  const containerName = isSearchImage
+    ? SEARCHES_CONTAINER_NAME
+    : CONTAINER_NAME;
 
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = await resizeImage(Buffer.from(arrayBuffer));
+    const shouldWatermark = isSearchImage ? false : true; // Don't watermark search images
+    const buffer = await resizeImage(Buffer.from(arrayBuffer), shouldWatermark);
 
     await blockBlobClient.upload(buffer, buffer.length);
 
     // Generate SAS URL
     const sasToken = generateBlobSASQueryParameters(
       {
-        containerName: CONTAINER_NAME,
+        containerName,
         blobName: blobName,
         permissions: BlobSASPermissions.parse('r'),
         startsOn: new Date(),

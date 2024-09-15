@@ -1,20 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { searchImages } from '@/app/actions/search-images-action';
+import { searchImagesByImage } from '@/app/actions/search-images-by-image-action';
+import { uploadImage } from '@/app/actions/upload-images-action';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { SimilaritySearchResults } from '@/types/search';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Search, Sparkles } from 'lucide-react';
+import { Camera, Search, Upload, X } from 'lucide-react';
+import Image from 'next/image';
 
 import { PhotoCard } from './photo-card';
 
 export default function ImageSearchGallery() {
   const [query, setQuery] = useState('');
+  const [imageQuery, setImageQuery] = useState('');
   const [aiQuery, setAiQuery] =
     useState<SimilaritySearchResults['refinedQuery']>();
   const [results, setResults] = useState<
@@ -22,6 +26,7 @@ export default function ImageSearchGallery() {
   >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSearch = async (searchQuery: string) => {
     setIsLoading(true);
@@ -30,13 +35,38 @@ export default function ImageSearchGallery() {
       const data = await searchImages(searchQuery, 5);
       setResults(data.results);
       setAiQuery(data.refinedQuery);
-      setQuery(searchQuery); // Update the input field with the searched query
+      setQuery(searchQuery);
+      setImageQuery(''); // Clear image query when performing text search
     } catch (error) {
       console.error('Search error:', error);
       setError(
         error instanceof Error
           ? error.message
           : 'An error occurred during the search'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImageSearch = async (file: File) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const imageUrl = await uploadImage(formData);
+      setImageQuery(imageUrl);
+      const data = await searchImagesByImage(imageUrl);
+      setResults(data.results);
+      setAiQuery(undefined);
+      setQuery('');
+    } catch (error) {
+      console.error('Image search error:', error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'An error occurred during the image search'
       );
     } finally {
       setIsLoading(false);
@@ -50,6 +80,21 @@ export default function ImageSearchGallery() {
 
   const handleTagClick = (tag: string) => {
     handleSearch(tag);
+  };
+
+  const handleImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImageSearch(file);
+    }
+  };
+
+  const clearImageQuery = () => {
+    setImageQuery('');
   };
 
   return (
@@ -87,7 +132,55 @@ export default function ImageSearchGallery() {
             />
             Search
           </Button>
+          <Button
+            type='button'
+            onClick={handleImageUpload}
+            disabled={isLoading}
+            className='rounded-full bg-secondary hover:bg-secondary/90 text-secondary-foreground'
+          >
+            <Camera className='mr-2 h-4 w-4' />
+            Image Search
+          </Button>
+          <input
+            type='file'
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept='image/*'
+            className='hidden'
+          />
         </form>
+
+        <AnimatePresence>
+          {imageQuery && (
+            <motion.div
+              className='bg-card p-6 rounded-xl shadow-lg border border-primary/20'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h2 className='text-lg font-semibold mb-2 flex items-center justify-center text-primary'>
+                <Upload className='mr-2 h-5 w-5 text-primary' />
+                Uploaded Image Query
+              </h2>
+              <div className='relative w-full h-48 mb-4'>
+                <Image
+                  src={imageQuery}
+                  alt='Uploaded image query'
+                  layout='fill'
+                  objectFit='contain'
+                  className='rounded-md'
+                />
+                <Button
+                  className='absolute top-2 right-2 p-1 h-8 w-8 rounded-full bg-destructive/80 hover:bg-destructive'
+                  onClick={clearImageQuery}
+                >
+                  <X className='h-4 w-4' />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {aiQuery && (
@@ -99,7 +192,7 @@ export default function ImageSearchGallery() {
               transition={{ duration: 0.3 }}
             >
               <h2 className='text-lg font-semibold mb-2 flex items-center justify-center text-primary'>
-                <Sparkles className='mr-2 h-5 w-5 text-primary' />
+                <Upload className='mr-2 h-5 w-5 text-primary' />
                 AI Refined Query
               </h2>
               <p className='text-md mb-3 font-medium text-center text-primary'>

@@ -1,14 +1,8 @@
 import { db } from '@/db';
 import { images } from '@/db/schema';
-import { vectorizeText } from '@/lib/azure-computer-vision';
+import { vectorizeImage, vectorizeText } from '@/lib/azure-computer-vision';
 import { refineImageQuery } from '@/lib/azure-generate';
-import {
-  arrayContained,
-  arrayContains,
-  arrayOverlaps,
-  cosineDistance,
-  getTableColumns
-} from 'drizzle-orm';
+import { arrayOverlaps, cosineDistance, getTableColumns } from 'drizzle-orm';
 
 type ImageResult = {
   id: number;
@@ -52,50 +46,81 @@ function generateConfidenceExplanation(
   return explanation;
 }
 
-export async function similaritySearch(query: string, limit: number = 5) {
+export async function similaritySearch(
+  query: string,
+  limit: number = 5,
+  isImage = false
+) {
   try {
-    const refinedQuery = await refineImageQuery(query);
-    const queryEmbedding = await vectorizeText(refinedQuery.object.newQuery);
+    if (isImage) {
+      const imageEmbedding = await vectorizeImage(query);
 
-    const results = await db
-      .select({
-        ...getTableColumns(images),
-        distance: cosineDistance(
-          images.descriptionVector,
-          queryEmbedding.vector
-        )
-      })
-      .from(images)
-      .where(arrayOverlaps(images.tags, refinedQuery.object.tags))
-      .orderBy((fields) => [fields.distance])
-      .limit(limit);
+      const results = await db
+        .select({
+          ...getTableColumns(images),
+          distance: cosineDistance(images.imageVector, imageEmbedding.vector)
+        })
+        .from(images)
+        .orderBy((fields) => [fields.distance])
+        .limit(limit);
 
-    const formattedResults = results.map((result) => {
-      const distance = Number(result.distance);
-      const confidence = calculateConfidence(distance);
+      const formattedResults = results.map((result) => {
+        const distance = Number(result.distance);
+        const confidence = calculateConfidence(distance);
 
-      // Count tag overlaps
-      const tagMatchCount = result.tags?.filter((tag) =>
-        refinedQuery.object.tags.includes(tag)
-      ).length;
+        return {
+          ...result,
+          confidence,
+          confidenceExplanation: '', // TODO - Add explanation logic for image searches
+          distance
+        };
+      });
 
-      // Generate explanation
-      const confidenceExplanation = generateConfidenceExplanation(
-        result,
-        refinedQuery.object,
-        distance,
-        tagMatchCount
-      );
+      return { formattedResults, refinedQuery: null };
+    } else {
+      const refinedQuery = await refineImageQuery(query);
+      const queryEmbedding = await vectorizeText(refinedQuery.object.newQuery);
 
-      return {
-        ...result,
-        confidence,
-        confidenceExplanation, // Add the explanation to the result
-        distance
-      };
-    });
+      const results = await db
+        .select({
+          ...getTableColumns(images),
+          distance: cosineDistance(
+            images.descriptionVector,
+            queryEmbedding.vector
+          )
+        })
+        .from(images)
+        .where(arrayOverlaps(images.tags, refinedQuery.object.tags))
+        .orderBy((fields) => [fields.distance])
+        .limit(limit);
 
-    return { formattedResults, refinedQuery: refinedQuery.object };
+      const formattedResults = results.map((result) => {
+        const distance = Number(result.distance);
+        const confidence = calculateConfidence(distance);
+
+        // Count tag overlaps
+        const tagMatchCount = result.tags?.filter((tag) =>
+          refinedQuery.object.tags.includes(tag)
+        ).length;
+
+        // Generate explanation
+        const confidenceExplanation = generateConfidenceExplanation(
+          result,
+          refinedQuery.object,
+          distance,
+          tagMatchCount
+        );
+
+        return {
+          ...result,
+          confidence,
+          confidenceExplanation, // Add the explanation to the result
+          distance
+        };
+      });
+
+      return { formattedResults, refinedQuery: refinedQuery.object };
+    }
   } catch (error) {
     console.error('Error in similarity search:', error);
     throw error;

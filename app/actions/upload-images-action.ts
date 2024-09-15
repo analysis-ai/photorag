@@ -1,8 +1,14 @@
 'use server';
 
+import { uploadImageWithRetry, uploadManyImages } from '@/lib/azure-blob';
 import { analyzeImage } from '@/lib/azure-computer-vision';
 import { errorMessage } from '@/lib/utils';
-import { uploadManyImages } from '@/lib/azure-blob';
+
+export async function uploadImage(formData: FormData): Promise<string> {
+  const file = formData.get('image') as File;
+  const searchImageUpload = await uploadImageWithRetry(file, 1, true);
+  return searchImageUpload.sasUrl;
+}
 
 export async function uploadImages(formData: FormData) {
   const files = formData.getAll('images') as File[];

@@ -47,7 +47,10 @@ export async function generateDescriptionFromTags(
   return response;
 }
 
-export async function resizeImage(buffer: Buffer): Promise<Buffer> {
+export async function resizeImage(
+  buffer: Buffer,
+  shouldWatermark = true
+): Promise<Buffer> {
   const MAX_WIDTH = 800;
   const watermarkText = 'www.MegWise.com';
 
@@ -83,15 +86,19 @@ export async function resizeImage(buffer: Buffer): Promise<Buffer> {
     .png()
     .toBuffer();
 
-  // Add watermark to the image
-  return image
-    .composite([
-      {
-        input: watermark,
-        gravity: 'center'
-      }
-    ])
-    .toBuffer();
+  if (shouldWatermark) {
+    // Add watermark to the image
+    return image
+      .composite([
+        {
+          input: watermark,
+          gravity: 'center'
+        }
+      ])
+      .toBuffer();
+  } else {
+    return image.toBuffer();
+  }
 }
 
 export async function processImage(imageUrl: string) {
