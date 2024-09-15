@@ -26,7 +26,7 @@ const searchesClient = blobServiceClient.getContainerClient(
   SEARCHES_CONTAINER_NAME
 );
 
-export function generateSasUrl(blobName: string): string {
+export function generateSasUrl(blobName: string, expiresIn = 3600): string {
   const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
   const blobClient = containerClient.getBlobClient(blobName);
 
@@ -36,7 +36,7 @@ export function generateSasUrl(blobName: string): string {
       blobName: blobName,
       permissions: BlobSASPermissions.parse('r'),
       startsOn: new Date(),
-      expiresOn: new Date(new Date().valueOf() + 3600 * 1000) // URL expires in 1 hour
+      expiresOn: new Date(new Date().valueOf() + expiresIn * 1000) // URL expires in 1 hour
     },
     sharedKeyCredential
   ).toString();

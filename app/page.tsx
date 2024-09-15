@@ -5,7 +5,6 @@ import Link from 'next/link';
 export default function LandingPage() {
   return (
     <div className='flex min-h-screen flex-col bg-background'>
-      <Navbar />
       <main className='flex-1'>
         <section className='w-full py-12 md:py-24 lg:py-28 xl:py-32'>
           <div className='mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8'>

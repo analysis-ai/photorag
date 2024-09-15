@@ -23,3 +23,7 @@ export async function addImage(input: ImageInput): Promise<ImageType> {
     .returning();
   return image;
 }
+
+export async function getImages(): Promise<ImageType[]> {
+  return await db.select().from(images);
+}
