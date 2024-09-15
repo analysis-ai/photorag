@@ -1,6 +1,8 @@
 # PhotoMuse: AI-Powered Image Search and Analysis
 
-PhotoMuse is an advanced image search and analysis application that uses AI to generate descriptions and tags for images, and then allows for similarity-based searching using natural language queries. This is my submission for the [Microsoft RAG Hack](https://github.com/microsoft/RAG_Hack).
+PhotoMuse is an advanced image search and analysis application that uses AI to generate descriptions and tags for images, and then allows for similarity-based searching using natural language queries, as well as searching by similar images.
+
+This is my submission for the [Microsoft RAG Hack](https://github.com/microsoft/RAG_Hack).
 
 ## Table of Contents
 

@@ -1,5 +1,6 @@
 import '@/assets/globals.css';
 
+import { Navbar } from '@/components/navbar';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import type { Metadata } from 'next';
@@ -10,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'RAG Hack - Photo Muse AI',
   description:
-    'Tame your photo chaos: AI-powered organization, discovery, and promotion for photographers.'
+    'RAG HACK submission that leverages Azure AI and infrastructure to build a RAG application for photographs.'
 };
 
 export default function RootLayout({
@@ -27,6 +28,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Navbar />
           {children}
           <Toaster />
         </ThemeProvider>
