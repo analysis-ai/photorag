@@ -37,23 +37,23 @@ export default function About() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        {/* <Card>
+        <Card>
           <CardHeader>
             <CardTitle className='text-2xl flex items-center'>
-              <Video className='mr-2' /> Demo Video (Placeholder)
+              <Video className='mr-2' /> Demo Video
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className='aspect-w-16 aspect-h-9'>
               <iframe
-                src='https://www.youtube.com/embed/-d8sNML3WT8?si=Jg8JRsGJ1xg3Cntr'
+                src='https://www.youtube.com/embed/JvHKW363nwo?si=7N53F_NR5iG8V2xv'
                 allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
                 allowFullScreen
                 className='w-full min-h-[400px] rounded-lg'
               ></iframe>
             </div>
           </CardContent>
-        </Card> */}
+        </Card>
 
         <Card>
           <CardHeader>
@@ -61,12 +61,12 @@ export default function About() {
           </CardHeader>
           <CardContent>
             <p className='text-muted-foreground'>
-              RAG Photo Search is an innovative image search application that
-              leverages Azure AI and infrastructure to implement a
-              Retrieval-Augmented Generation (RAG) system for photographs. This
-              project showcases the power of combining vector embeddings,
-              similarity search, and large language models to create an
-              intelligent and efficient image retrieval system.
+              PhotoRAG is an innovative image search application that leverages
+              Azure AI and infrastructure to implement a Retrieval-Augmented
+              Generation (RAG) system for photographs. This project showcases
+              the power of combining vector embeddings, similarity search, and
+              large language models to create an intelligent and efficient image
+              retrieval system.
             </p>
           </CardContent>
         </Card>
@@ -80,9 +80,7 @@ export default function About() {
               <li>Text-based image search with AI-refined queries</li>
               <li>Image-based similarity search</li>
               <li>Vector embeddings for efficient similarity comparisons</li>
-              <li>
-                Integration with Azure Cognitive Services and Azure OpenAI
-              </li>
+              <li>Integration with Azure AI Services and Azure OpenAI</li>
               <li>Scalable architecture using Azure infrastructure</li>
             </ul>
           </CardContent>
@@ -103,24 +101,19 @@ export default function About() {
                 </p>
                 <ul className='list-disc pl-6 space-y-2'>
                   <li>
-                    <strong>Frontend:</strong> Next.js with React and Tailwind
+                    <strong>Fullstack:</strong> Next.js with React and Tailwind
                     CSS
                   </li>
                   <li>
-                    <strong>Backend:</strong> Azure Functions for serverless API
-                    endpoints
-                  </li>
-                  <li>
-                    <strong>Database:</strong> Azure Cosmos DB for storing image
-                    metadata and vector embeddings
+                    <strong>Database:</strong> Azure Postgresql Server
                   </li>
                   <li>
                     <strong>Storage:</strong> Azure Blob Storage for storing
                     images
                   </li>
                   <li>
-                    <strong>AI Services:</strong> Azure Cognitive Services
-                    (Computer Vision) and Azure OpenAI
+                    <strong>AI Services:</strong> Azure AI Services (Computer
+                    Vision) and Azure OpenAI
                   </li>
                 </ul>
               </div>
